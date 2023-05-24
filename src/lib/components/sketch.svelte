@@ -147,23 +147,21 @@
 	}
 </script>
 
-<main>
-	<div class="container">
+<div class="app-container">
+	<div class="sketch-container">
 		<h1>Sketch Pad</h1>
 		<div class="sketchpad">
-			<canvas bind:this={canvas} style="height: 80%;" />
+			<canvas bind:this={canvas} width="400" height="400" />
 			<button class="button" on:click={saveSketch}>Save Sketch</button>
 		</div>
 	</div>
-
 	<div class="gallery">
 		{#each sketches as sketch (sketch)}
 			<canvas class="gallery-item" use:renderSketch={[sketch]} width="400" height="400" />
 		{/each}
 	</div>
-
 	<div class="notification" class:active={showNotification}>Sketch saved!</div>
-</main>
+</div>
 
 <style>
 	:global(body) {
@@ -173,16 +171,13 @@
 		overflow: hidden;
 	}
 
-	.container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		height: 50vh;
-		overflow: auto;
+	.app-container {
+		display: grid;
+		grid-template-rows: 1fr 1fr;
+		height: 100vh;
 	}
 
-	.sketchpad {
+	.sketch-container {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -204,7 +199,6 @@
 		border: none;
 		background-color: white;
 		cursor: pointer;
-		height: 10%;
 	}
 
 	.button:active {
@@ -215,7 +209,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		height: 50vh;
+		align-items: center;
 		overflow: auto;
 		padding: 10px;
 	}
@@ -242,5 +236,18 @@
 
 	.notification.active {
 		opacity: 1;
+	}
+
+	.button {
+		margin-top: 20px;
+		padding: 10px 20px;
+		border: none;
+		background-color: white;
+		cursor: pointer;
+		height: 10%;
+	}
+
+	.button:active {
+		background-color: #ddd;
 	}
 </style>
