@@ -163,16 +163,48 @@
 </main>
 
 <style>
+	:global(body) {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		height: 100vh;
+		margin: 0;
+		background-color: blueviolet;
+		font-family: Arial, Helvetica, sans-serif;
+	}
+
+	h1 {
+		margin-bottom: 20px;
+	}
+
+	.content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	canvas {
+		background-color: white;
+		border: 1px solid black;
+	}
+
+	button {
+		margin-top: 20px;
+		padding: 10px 20px;
+		border: none;
+		background-color: white;
+		cursor: pointer;
+	}
+
+	button:active {
+		background-color: #ddd;
+	}
+
 	.gallery {
 		display: flex;
 		flex-wrap: wrap;
 		margin-top: 20px;
-	}
-
-	h1 {
-		top: 0px;
-		left: 30%;
-		position: absolute;
 	}
 
 	.gallery-item {
@@ -181,21 +213,7 @@
 		margin: 5px;
 		border: 1px solid black;
 	}
-	.content {
-		position: absolute;
-		top: 70%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		text-align: center;
-		font-family: Arial, Helvetica, sans-serif;
-		background-color: blueviolet;
-	}
 
-	canvas {
-		margin-top: 20px;
-		background-color: white;
-		border: 1px solid black;
-	}
 	.notification {
 		position: fixed;
 		top: 20px;
@@ -206,7 +224,7 @@
 		border-radius: 5px;
 		opacity: 0;
 		transition: opacity 0.5s;
-		pointer-events: none; /* Ignore mouse/touch events so it doesn't block the UI */
+		pointer-events: none;
 	}
 
 	.notification.active {
