@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount, afterUpdate, onDestroy } from 'svelte';
-	import { collection, addDoc } from 'firebase/firestore';
+	import { collection, addDoc, getDocs } from 'firebase/firestore';
 	import { db } from '$lib/firestore';
 
+	let sketches: DrawingAction[][] = [];
 	const sketchCollection = collection(db, 'sketches');
 
 	type DrawingAction = {
@@ -70,7 +71,16 @@
 	let showNotification = false;
 	const saveSketch = async () => {
 		if (canvas === null || ctx === null) return;
+
 		await addDoc(sketchCollection, { drawingActions });
+
+		// Add the new sketch to the gallery
+		sketches = [...sketches, [...drawingActions]]; // Create a copy of drawingActions
+
+		// Clear the canvas and the drawing actions
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.beginPath(); // Reset the drawing path
+		drawingActions.length = 0;
 		// Show notification
 		showNotification = true;
 		setTimeout(() => {
@@ -79,6 +89,11 @@
 	};
 
 	onMount(() => {
+		const fetchSketches = async () => {
+			const sketchDocs = await getDocs(sketchCollection);
+			sketches = sketchDocs.docs.map((doc) => doc.data().drawingActions);
+		};
+		fetchSketches();
 		mounted = true;
 	});
 
@@ -107,6 +122,29 @@
 			canvas.removeEventListener('touchend', endDrawing);
 		}
 	});
+
+	function renderSketch(node: HTMLCanvasElement, [drawingActions]: [DrawingAction[]]) {
+		const context = node.getContext('2d');
+
+		if (!context) {
+			return;
+		}
+
+		context.clearRect(0, 0, node.width, node.height);
+		context.beginPath();
+		context.strokeStyle = 'black';
+		context.lineWidth = 2;
+
+		for (const action of drawingActions) {
+			if (action.type === 'moveTo') {
+				context.moveTo(action.x, action.y);
+			} else if (action.type === 'lineTo') {
+				context.lineTo(action.x, action.y);
+				context.stroke();
+			}
+		}
+		context.closePath(); // Close the path after drawing
+	}
 </script>
 
 <main>
@@ -114,14 +152,38 @@
 		<h1>Sketch Pad</h1>
 		<canvas bind:this={canvas} width="400" height="400" />
 		<button on:click={saveSketch}>Save Sketch</button>
+
+		<div class="gallery">
+			{#each sketches as sketch (sketch)}
+				<canvas class="gallery-item" use:renderSketch={[sketch]} width="400" height="400" />
+			{/each}
+		</div>
 	</div>
 	<div class="notification" class:active={showNotification}>Sketch saved!</div>
 </main>
 
 <style>
+	.gallery {
+		display: flex;
+		flex-wrap: wrap;
+		margin-top: 20px;
+	}
+
+	h1 {
+		top: 0px;
+		left: 30%;
+		position: absolute;
+	}
+
+	.gallery-item {
+		width: 100px;
+		height: 100px;
+		margin: 5px;
+		border: 1px solid black;
+	}
 	.content {
-		position: relative;
-		top: 50%;
+		position: absolute;
+		top: 70%;
 		left: 50%;
 		transform: translate(-50%, -50%);
 		text-align: center;
@@ -130,6 +192,7 @@
 	}
 
 	canvas {
+		margin-top: 20px;
 		background-color: white;
 		border: 1px solid black;
 	}
