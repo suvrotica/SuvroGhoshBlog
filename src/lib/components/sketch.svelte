@@ -150,8 +150,10 @@
 <main>
 	<div class="container">
 		<h1>Sketch Pad</h1>
-		<canvas bind:this={canvas} width="400" height="400" />
-		<button class="button" on:click={saveSketch}>Save Sketch</button>
+		<div class="sketchpad">
+			<canvas bind:this={canvas} style="height: 80%;" />
+			<button class="button" on:click={saveSketch}>Save Sketch</button>
+		</div>
 	</div>
 
 	<div class="gallery">
@@ -168,7 +170,7 @@
 		margin: 0;
 		background-color: blueviolet;
 		font-family: Arial, Helvetica, sans-serif;
-		overflow: hidden; /* Prevent the body from scrolling */
+		overflow: hidden;
 	}
 
 	.container {
@@ -176,8 +178,15 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		height: 50vh; /* Give each section half of the height of the viewport */
-		overflow: auto; /* Allow scrolling within each section if necessary */
+		height: 50vh;
+		overflow: auto;
+	}
+
+	.sketchpad {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 	}
 
 	h1 {
@@ -189,15 +198,16 @@
 		border: 1px solid black;
 	}
 
-	button {
+	.button {
 		margin-top: 20px;
 		padding: 10px 20px;
 		border: none;
 		background-color: white;
 		cursor: pointer;
+		height: 10%;
 	}
 
-	button:active {
+	.button:active {
 		background-color: #ddd;
 	}
 
