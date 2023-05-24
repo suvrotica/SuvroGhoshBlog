@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Sketch from '$lib/components/sketch.svelte';
 	import { onMount } from 'svelte';
 	import { db } from '$lib/firebase';
 	import { ref, push, remove, update, onValue } from 'firebase/database';
@@ -37,6 +38,7 @@
 	}
 </script>
 
+<Sketch />
 <form on:submit|preventDefault={createPost}>
 	<input bind:value={title} placeholder="Title" required />
 	<textarea bind:value={content} placeholder="Content" required />
