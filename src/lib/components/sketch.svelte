@@ -1,13 +1,10 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { collection, addDoc, getDocs } from 'firebase/firestore';
+	import { onMount, afterUpdate, onDestroy } from 'svelte';
+	import { collection, addDoc } from 'firebase/firestore';
 	import { db } from '$lib/firestore';
 
 	const sketchCollection = collection(db, 'sketches');
 
-	let canvas: HTMLCanvasElement | null = null;
-	let ctx: CanvasRenderingContext2D | null = null;
-	let drawing = false;
 	type DrawingAction = {
 		type: 'moveTo' | 'lineTo';
 		x: number;
@@ -15,36 +12,17 @@
 	};
 
 	const drawingActions: DrawingAction[] = [];
-	let sketches: DrawingAction[][] = [];
 
-	const fetchSketches = async () => {
-		const snapshot = await getDocs(sketchCollection);
-		sketches = snapshot.docs.map((doc) => doc.data().drawingActions);
-	};
-
-	onMount(() => {
-		if (!canvas) return;
-		ctx = canvas.getContext('2d');
-		if (!ctx) return;
-
-		// Fetch sketches on mount
-		fetchSketches();
-
-		// Register event listeners for drawing actions
-		canvas.addEventListener('mousedown', startDrawing);
-		canvas.addEventListener('mousemove', draw);
-		canvas.addEventListener('mouseup', endDrawing);
-		canvas.addEventListener('mouseout', endDrawing);
-
-		canvas.addEventListener('touchstart', startDrawing);
-		canvas.addEventListener('touchmove', draw);
-		canvas.addEventListener('touchend', endDrawing);
-		canvas.addEventListener('touchcancel', endDrawing);
-	});
+	let canvas: HTMLCanvasElement | null = null;
+	let ctx: CanvasRenderingContext2D | null = null;
+	let drawing = false;
+	let mounted = false;
 
 	const startDrawing = (event: MouseEvent | TouchEvent) => {
 		event.preventDefault();
-		if (canvas === null || ctx === null) return;
+		if (canvas === null) {
+			return;
+		}
 		const rect = canvas.getBoundingClientRect();
 		let clientX: number, clientY: number;
 		if ('touches' in event) {
@@ -60,8 +38,9 @@
 		const y = clientY - rect.top;
 		drawing = true;
 		drawingActions.push({ type: 'moveTo', x, y });
-		ctx.beginPath();
-		ctx.moveTo(x, y);
+		if (ctx !== null) {
+			ctx.moveTo(x, y);
+		}
 	};
 
 	const draw = (event: MouseEvent | TouchEvent) => {
@@ -92,34 +71,37 @@
 	const saveSketch = async () => {
 		if (canvas === null || ctx === null) return;
 		await addDoc(sketchCollection, { drawingActions });
-		await fetchSketches();
-		resetCanvas();
 	};
 
-	const resetCanvas = () => {
-		if (canvas === null || ctx === null) return;
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		drawingActions.length = 0;
-	};
+	onMount(() => {
+		mounted = true;
+	});
 
-	const redrawCanvases = () => {
-		sketches.forEach((sketch, i) => {
-			const canvas = document.getElementById(`canvas-${i}`) as HTMLCanvasElement | null;
-			const ctx = canvas?.getContext('2d');
-			if (canvas === null || ctx === null) return;
+	afterUpdate(() => {
+		if (mounted && canvas) {
+			ctx = canvas.getContext('2d');
+			if (!ctx) return;
+			canvas.addEventListener('mousedown', startDrawing);
+			canvas.addEventListener('mousemove', draw);
+			canvas.addEventListener('mouseup', endDrawing);
+			canvas.addEventListener('mouseout', endDrawing);
+			canvas.addEventListener('touchstart', startDrawing);
+			canvas.addEventListener('touchmove', draw);
+			canvas.addEventListener('touchend', endDrawing);
+		}
+	});
 
-			sketch.forEach((action) => {
-				if (ctx === null) return; // Check if ctx is null
-				if (typeof ctx === 'undefined') return;
-				if (action.type === 'moveTo') {
-					ctx.moveTo(action.x, action.y);
-				} else if (action.type === 'lineTo') {
-					ctx.lineTo(action.x, action.y);
-					ctx.stroke();
-				}
-			});
-		});
-	};
+	onDestroy(() => {
+		if (canvas) {
+			canvas.removeEventListener('mousedown', startDrawing);
+			canvas.removeEventListener('mousemove', draw);
+			canvas.removeEventListener('mouseup', endDrawing);
+			canvas.removeEventListener('mouseout', endDrawing);
+			canvas.removeEventListener('touchstart', startDrawing);
+			canvas.removeEventListener('touchmove', draw);
+			canvas.removeEventListener('touchend', endDrawing);
+		}
+	});
 </script>
 
 <main>
@@ -127,16 +109,6 @@
 		<h1>Sketch Pad</h1>
 		<canvas bind:this={canvas} width="400" height="400" />
 		<button on:click={saveSketch}>Save Sketch</button>
-	</div>
-
-	<div class="gallery">
-		{#each sketches as sketch, i}
-			<div class="sketch">
-				<canvas id={`canvas-${i}`} width="400" height="400" style="border: 1px solid black" />
-				<button on:click={redrawCanvases}>Redraw</button>
-				<!-- Remove the argument -->
-			</div>
-		{/each}
 	</div>
 </main>
 
@@ -153,15 +125,6 @@
 
 	canvas {
 		background-color: white;
-	}
-
-	.gallery {
-		display: flex;
-		justify-content: center;
-		margin-top: 2rem;
-	}
-
-	.sketch {
-		margin: 1rem;
+		border: 1px solid black;
 	}
 </style>
