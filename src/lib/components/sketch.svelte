@@ -67,10 +67,15 @@
 		if (!drawing) return;
 		drawing = false;
 	};
-
+	let showNotification = false;
 	const saveSketch = async () => {
 		if (canvas === null || ctx === null) return;
 		await addDoc(sketchCollection, { drawingActions });
+		// Show notification
+		showNotification = true;
+		setTimeout(() => {
+			showNotification = false;
+		}, 2000); // Hide notification after 2 seconds
 	};
 
 	onMount(() => {
@@ -110,6 +115,7 @@
 		<canvas bind:this={canvas} width="400" height="400" />
 		<button on:click={saveSketch}>Save Sketch</button>
 	</div>
+	<div class="notification" class:active={showNotification}>Sketch saved!</div>
 </main>
 
 <style>
@@ -126,5 +132,21 @@
 	canvas {
 		background-color: white;
 		border: 1px solid black;
+	}
+	.notification {
+		position: fixed;
+		top: 20px;
+		right: 20px;
+		padding: 10px;
+		background-color: rgb(176, 209, 113);
+		color: rgb(0, 0, 0);
+		border-radius: 5px;
+		opacity: 0;
+		transition: opacity 0.5s;
+		pointer-events: none; /* Ignore mouse/touch events so it doesn't block the UI */
+	}
+
+	.notification.active {
+		opacity: 1;
 	}
 </style>
