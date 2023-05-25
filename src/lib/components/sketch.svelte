@@ -393,7 +393,7 @@
 	.gallery-item {
 		width: 100px;
 		height: 100px;
-		margin: 5px;
+		margin: 10px;
 		border: 1px solid black;
 	}
 
