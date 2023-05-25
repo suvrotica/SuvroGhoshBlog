@@ -360,7 +360,7 @@
 
 	/* CSS rules for all canvas elements. They have a white background and a black border */
 	canvas {
-		background-color: white;
+		background-color: rgb(238, 240, 232);
 		border: 1px solid black;
 	}
 
