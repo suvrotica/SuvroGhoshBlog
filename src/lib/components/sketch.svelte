@@ -333,7 +333,7 @@
 	/* A global rule that applies to the entire body of the document. This sets the margin, background color, font family, and overflow property for the whole page */
 	:global(body) {
 		margin: 0;
-		background-color: blueviolet;
+		background-color: rgb(192, 194, 172);
 		font-family: Arial, Helvetica, sans-serif;
 		overflow: hidden;
 	}
