@@ -1,9 +1,11 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBtv8qUkhnuGAKX4lpnPWYBns-FfWVhmwk",
   authDomain: "blog-1b716.firebaseapp.com",
+  databaseURL: "https://blog-1b716-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "blog-1b716",
   storageBucket: "blog-1b716.appspot.com",
   messagingSenderId: "502711874678",
