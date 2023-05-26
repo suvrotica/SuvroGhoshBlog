@@ -17,6 +17,7 @@
 	// Variables to store the canvas and its 2D rendering context
 	let canvas: HTMLCanvasElement | null = null;
 	let ctx: CanvasRenderingContext2D | null = null;
+	let resizeObserver: ResizeObserver;
 
 	// Variable to check if the user is currently drawing, initialized as false
 	let drawing = false;
@@ -200,6 +201,19 @@
 		// This variable can be used to prevent certain actions from taking place until the component has mounted.
 		// For example, we might want to avoid interacting with the canvas element until the component has fully mounted.
 		mounted = true;
+
+		resizeObserver = new ResizeObserver((entries) => {
+			for (let entry of entries) {
+				if (canvas !== null) {
+					canvas.width = entry.contentRect.width;
+					canvas.height = entry.contentRect.height;
+				}
+			}
+		});
+
+		if (canvas !== null) {
+			resizeObserver.observe(canvas);
+		}
 	});
 
 	// After each component update, check if the canvas has been set. If so, add the event listeners, used to interact with the canvas and its rendering context and set up event listeners for user interaction. This is necessary to enable drawing on the canvas. Note that this function only sets up these interactions and listeners after the component has fully mounted and the canvas element exists.
@@ -244,6 +258,10 @@
 			canvas.removeEventListener('touchstart', startDrawing);
 			canvas.removeEventListener('touchmove', draw);
 			canvas.removeEventListener('touchend', endDrawing);
+
+			if (resizeObserver !== null && canvas !== null) {
+				resizeObserver.unobserve(canvas);
+			}
 		}
 	});
 
@@ -311,12 +329,11 @@
 								<!-- The canvas where the user can sketch.
 							`bind:this={canvas}` binds the DOM node to the `canvas` variable in the component's script. -->
 
-								<canvas bind:this={canvas} style="width:100%; height:100%;" />
-
-								<!-- Button for saving the sketch.
-							When the button is clicked, it calls the `saveSketch` function. -->
-								<button class="button" on:click={saveSketch}>Save Sketch</button>
+								<canvas bind:this={canvas} />
 							</div>
+							<!-- Button for saving the sketch.
+							When the button is clicked, it calls the `saveSketch` function. -->
+							<button class="button" on:click={saveSketch}>Save Sketch</button>
 						</div></td
 					>
 				</tr></tbody
@@ -333,7 +350,7 @@
 				{#each sketches as sketch (sketch)}
 					<!-- The canvas is rendered with the given sketch using the `renderSketch` action function.
 					`use:renderSketch={[sketch]}` attaches the `renderSketch` action to the canvas element. -->
-					<canvas class="gallery-item" use:renderSketch={[sketch]} width="400" height="400" />
+					<canvas class="gallery-item" use:renderSketch={[sketch]} width="200" height="200" />
 				{/each}
 			</div>
 
@@ -419,6 +436,25 @@
 </!-->
 
 <style>
+	/* CSS */
+	.sketch-container {
+		width: 90vw; /* 90% of viewport width */
+		height: 60vh; /* 60% of viewport height */
+		position: relative; /* This is important for the canvas to be positioned correctly */
+	}
+
+	.sketchpad {
+		width: 100%;
+		height: 100%;
+		position: relative;
+	}
+
+	.sketchpad canvas {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+	}
+
 	canvas {
 		background-color: rgb(238, 240, 232);
 		border: 1px solid black;
