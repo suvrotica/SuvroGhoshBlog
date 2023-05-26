@@ -292,43 +292,61 @@
 	}
 </script>
 
-<main>
-	<!-- The parent div container for the whole application -->
-	<div class="app-container">
-		<!-- A div that holds the sketch pad and its functionalities -->
-		<div class="sketch-container">
+<main class="container">
+	<article>
+		<header>Header</header>
+		<section>
 			<!-- Heading for the sketch pad -->
-			<h1>Sketch Pad</h1>
+			Sketch Pad
+		</section>
 
-			<div class="sketchpad">
-				<!-- The canvas where the user can sketch.
-		    `bind:this={canvas}` binds the DOM node to the `canvas` variable in the component's script. -->
-				<canvas bind:this={canvas} width="400" height="400" />
+		<!-- The parent div container for the whole application -->
+		<table role="grid">
+			<tbody>
+				<tr>
+					<th scope="row" />
+					<td
+						><div class="sketch-container">
+							<div class="sketchpad">
+								<!-- The canvas where the user can sketch.
+							`bind:this={canvas}` binds the DOM node to the `canvas` variable in the component's script. -->
 
-				<!-- Button for saving the sketch.
-			When the button is clicked, it calls the `saveSketch` function. -->
-				<button class="button" on:click={saveSketch}>Save Sketch</button>
+								<canvas bind:this={canvas} style="width:100%; height:100%;" />
+
+								<!-- Button for saving the sketch.
+							When the button is clicked, it calls the `saveSketch` function. -->
+								<button class="button" on:click={saveSketch}>Save Sketch</button>
+							</div>
+						</div></td
+					>
+				</tr></tbody
+			>
+		</table>
+		<div class="app-container">
+			<!-- A div that holds the sketch pad and its functionalities -->
+
+			<!-- A div to display a gallery of saved sketches -->
+			<div class="grid">
+				<!-- For each sketch in the `sketches` array, it renders a canvas with the sketch.
+				`{#each sketches as sketch (sketch)}` is a Svelte block that loops over the `sketches` array.
+				`(sketch)` is a key expression which uniquely identifies each sketch. -->
+				{#each sketches as sketch (sketch)}
+					<!-- The canvas is rendered with the given sketch using the `renderSketch` action function.
+					`use:renderSketch={[sketch]}` attaches the `renderSketch` action to the canvas element. -->
+					<canvas class="gallery-item" use:renderSketch={[sketch]} width="400" height="400" />
+				{/each}
 			</div>
+
+			<!-- A div to show a notification when a sketch is saved.
+			`class:active={showNotification}` adds the `active` class to the div when `showNotification` is true. -->
+			<div class="notification" class:active={showNotification}>Sketch saved!</div>
 		</div>
 
-		<!-- A div to display a gallery of saved sketches -->
-		<div class="gallery">
-			<!-- For each sketch in the `sketches` array, it renders a canvas with the sketch.
-	    `{#each sketches as sketch (sketch)}` is a Svelte block that loops over the `sketches` array.
-	    `(sketch)` is a key expression which uniquely identifies each sketch. -->
-			{#each sketches as sketch (sketch)}
-				<!-- The canvas is rendered with the given sketch using the `renderSketch` action function.
-			`use:renderSketch={[sketch]}` attaches the `renderSketch` action to the canvas element. -->
-				<canvas class="gallery-item" use:renderSketch={[sketch]} width="400" height="400" />
-			{/each}
-		</div>
-
-		<!-- A div to show a notification when a sketch is saved.
-	`class:active={showNotification}` adds the `active` class to the div when `showNotification` is true. -->
-		<div class="notification" class:active={showNotification}>Sketch saved!</div>
-	</div>
+		<footer>Footer</footer>
+	</article>
 </main>
 
+<!-- 
 <style>
 	/* A global rule that applies to the entire body of the document. This sets the margin, background color, font family, and overflow property for the whole page */
 	:global(body) {
@@ -380,20 +398,29 @@
 	}
 
 	/* CSS rules for the gallery div. It is displayed as a row of elements that can wrap to the next line. Its items are centered, and it allows scrolling if the content overflows */
-	.gallery {
+	/* .gallery {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
 		align-items: center;
 		overflow: auto;
 		padding: 10px;
-	}
+	} */
 
 	/* CSS rules for each canvas in the gallery. They have a fixed size, a margin, and a border */
 	.gallery-item {
 		width: 100px;
 		height: 100px;
 		margin: 10px;
+		border: 1px solid black;
+	}
+
+	
+</!-->
+
+<style>
+	canvas {
+		background-color: rgb(238, 240, 232);
 		border: 1px solid black;
 	}
 
